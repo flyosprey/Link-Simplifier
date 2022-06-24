@@ -1,3 +1,4 @@
+
 ### OSX ###
 .DS_Store
 .AppleDouble
@@ -86,3 +87,8 @@ local_settings.py
 .env
 db.sqlite3
 ngrok
+runtime.txt
+requirements.txt
+Procfile
+venv
+.idea
