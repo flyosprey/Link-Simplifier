@@ -4,25 +4,17 @@ from django.core.exceptions import ValidationError
 from loguru import logger
 from telebot.apihelper import ApiTelegramException
 
-AUTO_FILLED_IN = 'default field'
+AUTO_FILLED = 'default field'
 
 
 class BotConfig(models.Model):
     """ Base Telegram bot model """
-    title = models.CharField(verbose_name='Bot name', max_length=100,
-                             blank=True, editable=False, default=AUTO_FILLED_IN)
-    link = models.URLField(verbose_name='Bot link', max_length=150,
-                           blank=True, editable=False, default=AUTO_FILLED_IN)
-    username = models.CharField(max_length=100, blank=True, editable=False,
-                                default=AUTO_FILLED_IN)
-    tid = models.CharField(max_length=100, blank=True, editable=False,
-                           default=AUTO_FILLED_IN)
-
-    token = models.CharField(verbose_name='Bot Token', max_length=150,
-                             help_text='Put bot token, received from BotFather')
-    server_url = models.CharField(verbose_name='Webhook Url', max_length=200,
-                                  help_text='https://<название домена>')
-
+    title = models.CharField(verbose_name='Bot name', max_length=100, blank=True, editable=False, default=AUTO_FILLED)
+    link = models.URLField(verbose_name='Bot link', max_length=150, blank=True, editable=False, default=AUTO_FILLED)
+    username = models.CharField(max_length=100, blank=True, editable=False, default=AUTO_FILLED)
+    tid = models.CharField(max_length=100, blank=True, editable=False, default=AUTO_FILLED)
+    token = models.CharField(verbose_name='Bot Token', max_length=150, help_text='Put bot token from BotFather')
+    server_url = models.CharField(verbose_name='Webhook Url', max_length=200, help_text='https://<domain>')
     is_active = models.BooleanField(default=True)
 
     def update_bot_config(self):
@@ -30,12 +22,10 @@ class BotConfig(models.Model):
 
         tbot.config = self
         tbot.token = self.token
-
         return tbot
 
     def set_fields(self, tbot):
         j_data = tbot.get_me()
-
         self.title = j_data.first_name
         self.username = j_data.username
         self.tid = j_data.id
@@ -57,12 +47,10 @@ class BotConfig(models.Model):
 
     def clean(self):
         tbot = self.update_bot_config()
-
         try:
             self.set_fields(tbot)
             self.set_hook(tbot)
             self.set_active_config()
-
         except ApiTelegramException as e:
             logger.debug(e)
             raise ValidationError(
@@ -81,8 +69,8 @@ class BotConfig(models.Model):
 class BotUsers(models.Model):
     user_id = models.CharField(verbose_name='User id', max_length=30, blank=False, primary_key=True, editable=False)
     user_name = models.CharField(verbose_name='User name', max_length=50, blank=False, editable=False, default="")
-    first_name = models.CharField(verbose_name='First name', max_length=50, blank=True, editable=False, default="")
-    last_name = models.CharField(verbose_name='Last name', max_length=50, blank=True, editable=False, default="")
+    first_name = models.CharField(verbose_name='First name', max_length=50, blank=False, editable=False, default="")
+    last_name = models.CharField(verbose_name='Last name', max_length=50, blank=False, editable=False, default="")
     is_bot = models.BooleanField(default=False)
 
     def __str__(self):
@@ -92,3 +80,20 @@ class BotUsers(models.Model):
         verbose_name = 'Registered User'
         verbose_name_plural = 'Registered Users'
 
+
+class UserPayments(models.Model):
+    user_id = models.CharField(verbose_name='User id', max_length=30, blank=False, editable=False)
+    user_name = models.CharField(verbose_name='User name', max_length=50, blank=False, editable=False, default="")
+    first_name = models.CharField(verbose_name='First name', max_length=50, blank=False, editable=False, default="")
+    last_name = models.CharField(verbose_name='Last name', max_length=50, blank=False, editable=False, default="")
+    amount = models.IntegerField(verbose_name='Amount of payment', editable=False, blank=False)
+    currency = models.CharField(verbose_name='Currency of payment', max_length=50, editable=False, blank=False)
+    is_vip = models.BooleanField(default=False)
+
+    def __str__(self):
+        user_name = self.user_name if self.user_name else self.first_name
+        return f"{user_name} - {self.currency} {self.amount}"
+
+    class Meta:
+        verbose_name = 'User Payments'
+        verbose_name_plural = 'Users Payments'

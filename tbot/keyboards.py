@@ -6,13 +6,12 @@ from telebot import types
 ASK_LINK = "🔗 Cut Link Now 🔗"
 
 
-def menu():
-    keyboard = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True, one_time_keyboard=False)
+def menu(bot):
+    keyboard = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True, one_time_keyboard=False)
     keyboard.add(types.KeyboardButton(ASK_LINK))
+    bot.set_my_commands([
+        types.BotCommand("/start", "start"),
+        types.BotCommand("/help", "help"),
+        types.BotCommand("/send_link", "send link")
+    ])
     return keyboard
-
-
-# def inline_button_url():
-#     keyboard = types.InlineKeyboardMarkup(row_width=5)
-#     keyboard.add(types.InlineKeyboardButton(ASK_LINK, callback_data=ASK_LINK))
-#     return keyboard

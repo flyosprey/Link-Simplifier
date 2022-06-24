@@ -1,7 +1,6 @@
 import validators
 from tbot.link_service_api import *
 from tbot_base.bot import tbot as bot
-from telebot import types
 from tbot_base.models import BotUsers
 
 from tbot.keyboards import *
@@ -9,8 +8,7 @@ from tbot.keyboards import *
 
 def start(message):
     register_user(message)
-    bot.send_message(message.chat.id, "Hi there!👋",
-                     parse_mode='HTML', reply_markup=menu())
+    bot.send_message(message.chat.id, "Hi there!👋", parse_mode='HTML', reply_markup=menu(bot))
     bot.send_message(message.chat.id, "Do you want to simplify a url?🔗\n I am ready to work!🙂")
 
 
